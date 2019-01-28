@@ -16,7 +16,7 @@ import Car from './components/Car'
 
 const database = firebase.database()
 
-export default class froggy_360 extends React.Component {
+export default class Game extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -68,8 +68,8 @@ export default class froggy_360 extends React.Component {
         let cameraOrientation = VrHeadModel.rotation()
         console.log(cameraOrientation)
 
-        if(cameraOrientation[1] > 70 && cameraOrientation[1] < 110) this.moveLeft()
-        else if(cameraOrientation[1] < -70 && cameraOrientation[1] > -110) this.moveRight()
+        if(cameraOrientation[1] > 45 && cameraOrientation[1] < 100) this.moveLeft()
+        else if(cameraOrientation[1] < -45 && cameraOrientation[1] > -100) this.moveRight()
         else this.getCloser()
         
       }
@@ -260,4 +260,4 @@ export default class froggy_360 extends React.Component {
   }
 };
 
-AppRegistry.registerComponent('froggy_360', () => froggy_360);
+AppRegistry.registerComponent('Game', () => Game);

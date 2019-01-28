@@ -21,10 +21,10 @@ function init(bundle, parent, options = {}) {
     r360.getDefaultLocation(),
   );
 
-  // r360.renderToSurface(
-  //   r360.createRoot('Login'),
-  //   r360.getDefaultSurface(),
-  // );
+  r360.renderToSurface(
+    r360.createRoot('Highscore'),
+    r360.getDefaultSurface()
+  );
   
 
   // Load the initial environment
