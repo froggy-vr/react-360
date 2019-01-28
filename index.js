@@ -6,6 +6,7 @@ import {
 
 import Game from './containers/Game'
 import Login from './containers/Login'
+import Highscore from './containers/Highscore'
 
 export default class froggy_360 extends React.Component {
   state = {
