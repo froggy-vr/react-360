@@ -5,11 +5,11 @@ import {
   View,
   Animated,
   VrButton,
+  VrHeadModel
 } from 'react-360';
-
 import {Easing} from'react-native'
-import firebase from '../config'
 
+import firebase from '../config'
 import House from './components/House'
 import Car from './components/Car'
 
@@ -37,10 +37,16 @@ export default class froggy_360 extends React.Component {
     this.car1Animation();
     this.car2Animation();
     this.firebaseSubscribe();
+    window.addEventListener('beforeunload', this.clearUser())
   }
 
   componentWillUnmount() {
-    database.ref(`/${this.props.userId}/user`).remove()
+    this.clearUser()
+    window.removeEventListener('beforeunload', this.clearUser())
+  }
+
+  clearUser = () => {
+    database.ref(`/${this.props.userId}/user`).set(false)
   }
 
   firebaseSubscribe = () => {
@@ -139,7 +145,6 @@ export default class froggy_360 extends React.Component {
         duration: 500,
         friction: 2, //default 7
         tension: 5 //default 40
-        // easing: Easing.bezier(.17,.67,1,.47)
       }
     ).start();
   }
