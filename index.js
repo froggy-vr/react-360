@@ -8,6 +8,7 @@ import {
   Model,
   Animated,
   VrButton,
+  VrHeadModel
 } from 'react-360';
 
 import {Easing} from'react-native'
@@ -31,11 +32,20 @@ export default class froggy_360 extends React.Component {
       carsInitialIndex: [20, 10],
       houseInitialIndex: 40,
       yIndex: 1,
-      adjustedX: 15,
+      adjustedX: 0,
       score: 0,
-      userId: 'user123',
+      userId: 'testkevin',
       jumped: false,
     };
+
+    // RCTDeviceEventEmitter.addListener('onReceivedInputEvent', e => {
+			
+		// 	// Log what event is happening
+		// 	// console.log('Event type', e)
+
+    //   console.log(VrHeadModel.rotation())
+
+		// });
   }
 
   componentDidMount() {
@@ -48,48 +58,73 @@ export default class froggy_360 extends React.Component {
     database.ref(`/${this.state.userId}/jump`).on('value', snapshot => {
       this.setState({ jumped: snapshot.val() })
       if (snapshot.val()) {
-        this.getCloser()
+        let cameraOrientation = VrHeadModel.rotation()
+        console.log(cameraOrientation)
+
+        if(cameraOrientation[1] > 70 && cameraOrientation[1] < 110) this.moveLeft()
+        if(cameraOrientation[1] < -70 && cameraOrientation[1] > -110) this.moveRight()
+        else this.getCloser()
+        
       }
     })
   }
 
-  car1Animation() {
+  car1Animation(input) {
     setTimeout(() => {
       if (this.state.currentPos === this.state.carsInitialIndex[0]) {
         console.log("you're hit")
         this.setState({ depth: new Animated.Value(0), currentPos: 0 })
       }
     }, 1200)
-    this.state.slideValue.setValue(0);
+    if(input > 50) input = 0;
+    const newPosition = input || 0
+    const velocity = ((50-newPosition)/50)*2000
+
+    this.state.slideValue.setValue(newPosition);
 
     //car
     Animated.timing(
       this.state.slideValue,
       {
         toValue: 50,
-        duration: 2000,
+        duration: velocity,
         easing: Easing.linear
       }
-    ).start(() => this.car1Animation());
+    ).start(() => {
+      if (this.state.slideValue._value === 50) {
+        this.car1Animation()
+      } 
+    }
+    );
   }
 
-  car2Animation() {
+  car2Animation(input) {
     setTimeout(() => {
       if (this.state.currentPos === this.state.carsInitialIndex[1]) {
         console.log("you're hit")
         this.setState({ depth: new Animated.Value(0), currentPos: 0 })
       }
     }, 1800)
-    this.state.slideValue2.setValue(0);
+    if(input > 50) input = 0;
+    const newPosition = input || 0
+    const velocity = ((50-newPosition)/50)*3000
+
+    this.state.slideValue2.setValue(newPosition);
+
     Animated.timing(
       this.state.slideValue2,
       {
         toValue: 50,
-        duration: 3000,
-        easing: Easing.linear
+        duration: velocity,
+        easing: Easing.linear,
       }
     ).start(() => {
-      this.car2Animation()
+      if (this.state.slideValue2._value === 50) {
+        this.car2Animation()
+      } 
+      // if () {
+      //   asdfasdf
+      // }
     });
   }
 
@@ -124,6 +159,31 @@ export default class froggy_360 extends React.Component {
 
   }
 
+  moveLeft = () =>{
+    console.log('move left')
+    let newXPositionCar1 = this.state.slideValue._value +10
+    let newXPositionCar2 = this.state.slideValue2._value +10
+
+
+    this.car2Animation(newXPositionCar2)
+    this.car1Animation(newXPositionCar1)
+    this.setState({
+      adjustedX: this.state.adjustedX + 10
+    })
+  }
+
+  moveRight = () =>{
+    console.log('move right')
+    let newXPositionCar1 = this.state.slideValue._value -10
+    let newXPositionCar2 = this.state.slideValue2._value -10
+
+    this.car2Animation(newXPositionCar2)
+    this.car1Animation(newXPositionCar1)
+    this.setState({
+      adjustedX: this.state.adjustedX - 10
+    })
+  }
+
 
   render() {
 
@@ -131,9 +191,29 @@ export default class froggy_360 extends React.Component {
       <View >
 
         <View style={{ transform: [{ translateZ: -3 }] }}>
-          <VrButton onClick={this.getCloser}>
-            <Text style={{ color: "red" }}>{this.state.text}</Text>
+          <VrButton onClick={this.moveLeft}>
+            <Text style={{ 
+              color: "red"
+            }}>
+            {this.state.text}
+            </Text>
           </VrButton>
+          <VrButton onClick={this.moveRight}>
+            <Text style={{ 
+              color: "red",
+              // transform: [{translateX: 0.5}]
+            }}>
+            moveRight
+            </Text>
+          </VrButton>
+          {/* <VrButton onClick={this.moveRight}>
+            <Text style={{ 
+              color: "red",
+              // transform: [{translateX: +0.5}]
+            }}>
+            moveRight
+            </Text>
+          </VrButton> */}
         </View>
 
         <Text
@@ -151,21 +231,21 @@ export default class froggy_360 extends React.Component {
         {/* APARTMENT MODELS  */}
 
         <House
-          xIndex={-8}
+          xIndex={-8+this.state.adjustedX}
           yIndex={this.state.yIndex}
           houseInitialIndex={this.state.houseInitialIndex}
           depth={this.state.depth}
         />
 
         <House
-          xIndex={0}
+          xIndex={0+this.state.adjustedX}
           yIndex={this.state.yIndex}
           houseInitialIndex={this.state.houseInitialIndex}
           depth={this.state.depth}
         />
 
         <House
-          xIndex={8}
+          xIndex={8+this.state.adjustedX}
           yIndex={this.state.yIndex}
           houseInitialIndex={this.state.houseInitialIndex}
           depth={this.state.depth}
