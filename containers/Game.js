@@ -8,6 +8,7 @@ import {
   VrHeadModel
 } from 'react-360';
 import {Easing} from'react-native'
+import axios from '../helpers/axios'
 
 import firebase from '../config'
 import House from './components/House'
@@ -30,6 +31,7 @@ export default class froggy_360 extends React.Component {
       adjustedX: 0,
       score: 0,
       jumped: false,
+      highScore: 0
     };
   }
 
@@ -37,6 +39,7 @@ export default class froggy_360 extends React.Component {
     this.car1Animation();
     this.car2Animation();
     this.firebaseSubscribe();
+    this.getHighScore();
     window.addEventListener('beforeunload', this.clearUser())
   }
 
@@ -47,6 +50,15 @@ export default class froggy_360 extends React.Component {
 
   clearUser = () => {
     database.ref(`/${this.props.userId}/user`).set(false)
+  }
+
+  getHighScore(){
+    const self = this
+    axios.get('/users/' + this.props.userId)
+    .then(({data}) => {
+      self.setState({highScore: data.user.highScore})
+    })
+    .catch((err) => console.log(err))
   }
 
   firebaseSubscribe = () => {
@@ -64,11 +76,20 @@ export default class froggy_360 extends React.Component {
     })
   }
 
+  getHit = () =>{
+    if(this.state.score > this.state.highScore){
+      axios.patch('/users/' + this.props.userId, {highScore: this.state.score})
+      .then(({data}) => this.setState({highScore: data.user.highScore}))
+      .catch((err) => console.log(err))
+    }
+    this.setState({ depth: new Animated.Value(0), currentPos: 0, score: 0, adjustedX: 0 })
+  }
+
   car1Animation(input) {
     setTimeout(() => {
       if (this.state.currentPos === this.state.carsInitialIndex[0]) {
         console.log("you're hit")
-        this.setState({ depth: new Animated.Value(0), currentPos: 0 })
+        this.getHit()
       }
     }, 1200)
     if(input > 50) input = 0;
@@ -97,7 +118,7 @@ export default class froggy_360 extends React.Component {
     setTimeout(() => {
       if (this.state.currentPos === this.state.carsInitialIndex[1]) {
         console.log("you're hit")
-        this.setState({ depth: new Animated.Value(0), currentPos: 0 })
+        this.getHit()
       }
     }, 1800)
     if(input > 50) input = 0;
@@ -134,7 +155,7 @@ export default class froggy_360 extends React.Component {
       let newScore = this.state.score + 1
       console.log(newScore, 'new')
 
-      this.setState({ depth: new Animated.Value(0), currentPos: 0, score: newScore })
+      this.setState({ depth: new Animated.Value(0), currentPos: 0, score: newScore, adjustedX: 0 })
       console.log(this.state.score)
     }
 
