@@ -40,6 +40,7 @@ export default class froggy_360 extends React.Component {
     this.car2Animation();
     this.firebaseSubscribe();
     this.getHighScore();
+    this.getScoreBoard();
     window.addEventListener('beforeunload', this.clearUser())
   }
 
@@ -48,15 +49,31 @@ export default class froggy_360 extends React.Component {
     window.removeEventListener('beforeunload', this.clearUser())
   }
 
+  getScoreBoard = () =>{
+    axios.get('/users')
+    .then(({data}) => console.log(data))
+    .catch(err => console.log(err))
+  }
+
   clearUser = () => {
     database.ref(`/${this.props.userId}/user`).set(false)
   }
 
   getHighScore(){
-    const self = this
     axios.get('/users/' + this.props.userId)
     .then(({data}) => {
-      self.setState({highScore: data.user.highScore})
+      console.log(data)
+      if(!data.user){
+        axios.post(
+          '/users/',
+          {
+            gameId: this.props.userId
+          }
+        )
+        .then(({data}) => console.log(data))
+        .catch((err) => console.log(err))
+      }
+      this.setState({highScore: data.user.highScore})
     })
     .catch((err) => console.log(err))
   }
@@ -77,6 +94,7 @@ export default class froggy_360 extends React.Component {
   }
 
   getHit = () =>{
+
     if(this.state.score > this.state.highScore){
       axios.patch('/users/' + this.props.userId, {highScore: this.state.score})
       .then(({data}) => this.setState({highScore: data.user.highScore}))
