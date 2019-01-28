@@ -62,7 +62,7 @@ export default class froggy_360 extends React.Component {
         console.log(cameraOrientation)
 
         if(cameraOrientation[1] > 70 && cameraOrientation[1] < 110) this.moveLeft()
-        if(cameraOrientation[1] < -70 && cameraOrientation[1] > -110) this.moveRight()
+        else if(cameraOrientation[1] < -70 && cameraOrientation[1] > -110) this.moveRight()
         else this.getCloser()
         
       }
