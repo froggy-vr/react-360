@@ -23,19 +23,20 @@ const database = firebase.database()
 export default class Login extends React.Component {
     state = {
         userId: '',
-        titleLocation: new Animated.Value(1),
+        titleLocation: new Animated.Value(0),
         crawlLocation: new Animated.Value(0),
+        display: 'flex',
+        showKeyboard: false
     }
     componentDidMount() {
         this.titleAnimation()
         this.crawlAnimation()
     }
     titleAnimation() {
-        this.state.titleLocation.setValue(0);
         Animated.spring(
             this.state.titleLocation,
             {
-                toValue: -0.2,
+                toValue: -0.1,
                 duration: 800,
                 friction: 2,
                 tension: 1
@@ -48,77 +49,98 @@ export default class Login extends React.Component {
             this.state.crawlLocation,
             {
                 toValue: 20,
-                duration: 70000,
+                duration: 60000,
                 easing: Easing.linear
             }
-        ).start();
-    }
-    onClick = () => {
-        NativeModules.Keyboard.startInput({
-            placeholder: this.state.userId || 'Enter your name',
-            emoji: false
-        }).then(input => {
+        ).start(() => {
             this.setState({
-                userId: input
-            }, () => {
-                database.ref(`/${this.state.userId}/user`).on('value', snapshot => {
-                    console.log(snapshot.val())
-                    if (snapshot.val()) {
-                        this.props.startGame(this.state.userId)
-                    }
-                })
+                display: 'none'
             })
         });
+    }
+    onClick = () => {
+        this.setState({showKeyboard: true}, () => {
+            NativeModules.Keyboard.startInput({
+                placeholder: this.state.userId || 'Enter your name',
+                emoji: false
+            }).then(input => {
+                this.setState({
+                    userId: input,
+                    showKeyboard: false
+                }, () => {
+                    database.ref(`/${this.state.userId}/user`).on('value', snapshot => {
+                        console.log(snapshot.val())
+                        if (snapshot.val()) {
+                            this.props.startGame(this.state.userId)
+                        }
+                    })
+                })
+            });
+        })
     }
 
     render() {
         const AnimatedText = Animated.createAnimatedComponent(Text);
         return (
             <View style={{ transform: [{ translateZ: -2 }, { translateY: 0.6 }, { translateX: -0.3 }] }}>
-                <AnimatedText
-                    style={{
-                        transform: [{ translateZ: 1 }, { translateY: this.state.titleLocation }],
-                    }}
-                >
-                    Welcome To VR
+                <View style={{
+                    transform: [{ translateZ: 1 }],
+                    flexDirection: 'row'
+                }}>
+
+                    <AnimatedText style={{ transform: [{ translateY: this.state.titleLocation }] }}>
+                        Welcome To VR
+                    </AnimatedText>
                     <Image
                         source={asset('frog.png')}
                         style={{
-                            height: 1,
-                            width: 1,
-                        }}
-                    />GGY
-                </AnimatedText>
-                {this.state.userId !== '' ?
-                    <View>
-                        <VrButton onClick={this.onClick} style={styles.inputBox}>
-                            <Text>{this.state.userId}</Text>
-                        </VrButton>
-                    </View>
-                    :
-                    <VrButton onClick={this.onClick} style={styles.inputBox}>
-                        <Text>Enter Your Name</Text>
-                    </VrButton>
-                }
-                {this.state.userId !== '' &&
-                    <Image
-                        source={{ uri: `https://chart.googleapis.com/chart?cht=qr&chl=${this.state.userId}&chs=256x256&choe=UTF-8&chld=L%7C2` }}
-                        style={{
-                            height: 0.5,
-                            width: 0.5,
-                            marginTop: 0.2,
-                            transform: [{ translateX: 1 }, { translateY: 0.4 }]
+                            height: 0.2,
+                            width: 0.2,
+                            transform: [{ translateY: -0.06 }]
                         }}
                     />
-                }
+                    <AnimatedText style={{ transform: [{ translateY: this.state.titleLocation }] }}>
+                        GGY
+                    </AnimatedText>
+                </View>
+
+                    <View>
+                        <VrButton onClick={this.onClick} style={styles.inputBox}>
+                            <Text>{this.state.userId || 'Enter your name'}</Text>
+                        </VrButton>
+                        <View 
+                            style={{
+                                height: 1.2,
+                                width: 1.2,
+                                transform: [{ translateY: 0.5 }, { translateX: 1.5 }, { rotateY: '-35deg'}
+                            ] 
+                        }}
+                        >
+                            {
+                                !!this.state.userId && !this.state.showKeyboard &&
+                                <Image
+                                    source={{ uri: `https://chart.googleapis.com/chart?cht=qr&chl=${this.state.userId}&chs=256x256&choe=UTF-8&chld=L%7C2` }}
+                                    style={{
+                                        height: '100%',
+                                        width: '100%',
+                                        
+                                    }}
+                                />
+                            }
+                        </View>
+                    </View>
+
                 <Animated.Text style={{
                     color: 'gold',
-                    transform: [                        
-                        { translate: [-1.2, -2, -1] },
-                        {translateZ: 1}, 
+                    transform: [
+                        { translate: [-1.5, -2, -1] },
+                        { translateZ: 1 },
                         { translateY: this.state.crawlLocation },
+                        { rotateY: '35deg'}
                     ],
                     zIndex: -100,
+                    display: this.state.display,
+                    
                 }} >
                     In a Galaxy Far Far Away ...{"\n"}
                     There lives a young Frog{"\n"}
@@ -146,7 +168,8 @@ const styles = StyleSheet.create({
         borderColor: '#639dda',
         borderWidth: 0.01,
         borderRadius: 0.01,
-        width: 0.8
+        width: 0.8,
+        transform: [{translateY:0.2}]
     },
     crawl: {
         color: "red"
