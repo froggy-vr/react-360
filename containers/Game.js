@@ -101,8 +101,6 @@ export default class Game extends React.Component {
       this.setState({ jumped: snapshot.val() })
       if (snapshot.val()) {
         let cameraOrientation = VrHeadModel.rotation()
-        console.log(cameraOrientation)
-        console.log(this.state.adjustedX)
 
         if(this.state.adjustedX <8 && this.state.adjustedX > -8) {
 
@@ -214,27 +212,40 @@ export default class Game extends React.Component {
     let newPos = this.state.currentPos + 5
 
     console.log('new position', newPos)
+    console.log('new depth', newValue)
     this.setState({
       currentPos: newPos
     })
-    if (this.state.currentPos === this.state.houseInitialIndex <= 15) {
+    if (this.state.currentPos > this.state.houseInitialIndex - 15) {
       console.log('You won!')
       let newScore = this.state.score + 1
-      console.log(newScore, 'new')
 
-      this.setState({ depth: new Animated.Value(0), currentPos: 0, score: newScore, adjustedX: 0 })
-      console.log(this.state.score)
+      this.setState({ depth: new Animated.Value(0), currentPos: 0, score: newScore, adjustedX: 0 }, () => {
+        console.log(this.state.depth._value, 'new depth')
+        Animated.spring(
+          new Animated.Value(25),
+          {
+            toValue: 0,
+            duration: 500,
+            friction: 2, //default 7
+            tension: 5 //default 40
+          }
+        ).start();
+      })
+    }
+    else{
+      Animated.spring(
+        this.state.depth,
+        {
+          toValue: newValue,
+          duration: 500,
+          friction: 2, //default 7
+          tension: 5 //default 40
+        }
+      ).start();
+
     }
 
-    Animated.spring(
-      this.state.depth,
-      {
-        toValue: newValue,
-        duration: 500,
-        friction: 2, //default 7
-        tension: 5 //default 40
-      }
-    ).start();
   }
   moveLeft = () =>{
     console.log('move left')
