@@ -70,12 +70,7 @@ export default class Login extends React.Component {
                     userId: input,
                     showKeyboard: false
                 }, () => {
-                    database.ref(`/${this.state.userId}/user`).on('value', snapshot => {
-                        console.log(snapshot.val())
-                        if (snapshot.val()) {
-                            this.props.startGame(this.state.userId)
-                        }
-                    })
+                    this.props.startGame(this.state.userId)
                 })
             });
         })
