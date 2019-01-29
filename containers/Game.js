@@ -5,8 +5,12 @@ import {
   View,
   Animated,
   VrButton,
-  VrHeadModel
+  VrHeadModel,
+  asset,
+  NativeModules,
 } from 'react-360';
+
+const {AudioModule} = NativeModules;
 import {Easing} from'react-native'
 import axios from '../helpers/axios'
 
@@ -78,22 +82,65 @@ export default class Game extends React.Component {
     .catch((err) => console.log(err))
   }
 
+  playJumpSFX = ( ) =>{
+    AudioModule.playOneShot({
+      source: asset('jumping-martian.wav'),
+    });
+  }
+
+  playFailSFX = () =>{
+    AudioModule.playOneShot({
+      source: asset('fail.wav'),
+    });
+  }
+
   firebaseSubscribe = () => {
     database.ref(`/${this.props.userId}/jump`).on('value', snapshot => {
       this.setState({ jumped: snapshot.val() })
       if (snapshot.val()) {
         let cameraOrientation = VrHeadModel.rotation()
         console.log(cameraOrientation)
+        console.log(this.state.adjustedX)
 
-        if(cameraOrientation[1] > 45 && cameraOrientation[1] < 100) this.moveLeft()
-        else if(cameraOrientation[1] < -45 && cameraOrientation[1] > -100) this.moveRight()
-        else this.getCloser()
+        if(this.state.adjustedX <8 && this.state.adjustedX > -8) {
+
+          this.playJumpSFX()   
+
+          if(cameraOrientation[1] > 45 && cameraOrientation[1] < 100) this.moveLeft()
+          else if(cameraOrientation[1] < -45 && cameraOrientation[1] > -100) this.moveRight()
+          else this.getCloser()
+        }
+        else if(this.state.adjustedX === 8){
+
+          if(cameraOrientation[1] < -45 && cameraOrientation[1] > -100) {
+            this.moveRight()
+            this.playJumpSFX()
+            
+          }
+          else if(cameraOrientation[1] > -45 && cameraOrientation[1] < 45) {
+            this.getCloser()
+            this.playJumpSFX()
+          }
+        }
+        else if(this.state.adjustedX === -8){
+
+          if(cameraOrientation[1] > 45 && cameraOrientation[1] < 100) {
+            this.moveLeft()
+            this.playJumpSFX()
+          }
+          else if(cameraOrientation[1] > -45 && cameraOrientation[1] < 45) {
+            this.getCloser()
+            this.playJumpSFX()
+          }
+        }
         
       }
     })
   }
 
   getHit = () =>{
+
+    this.playFailSFX()
 
     if(this.state.score > this.state.highScore){
       axios.patch('/users/' + this.props.userId, {highScore: this.state.score})
@@ -168,7 +215,7 @@ export default class Game extends React.Component {
     this.setState({
       currentPos: newPos
     })
-    if (this.state.currentPos === this.state.houseInitialIndex - 15) {
+    if (this.state.currentPos === this.state.houseInitialIndex <= 15) {
       console.log('You won!')
       let newScore = this.state.score + 1
       console.log(newScore, 'new')
@@ -189,26 +236,26 @@ export default class Game extends React.Component {
   }
   moveLeft = () =>{
     console.log('move left')
-    let newXPositionCar1 = this.state.slideValue._value +10
-    let newXPositionCar2 = this.state.slideValue2._value +10
+    let newXPositionCar1 = this.state.slideValue._value +4
+    let newXPositionCar2 = this.state.slideValue2._value +4
 
 
     this.car2Animation(newXPositionCar2)
     this.car1Animation(newXPositionCar1)
     this.setState({
-      adjustedX: this.state.adjustedX + 10
+      adjustedX: this.state.adjustedX + 4
     })
   }
 
   moveRight = () =>{
     console.log('move right')
-    let newXPositionCar1 = this.state.slideValue._value -10
-    let newXPositionCar2 = this.state.slideValue2._value -10
+    let newXPositionCar1 = this.state.slideValue._value -4
+    let newXPositionCar2 = this.state.slideValue2._value -4
 
     this.car2Animation(newXPositionCar2)
     this.car1Animation(newXPositionCar1)
     this.setState({
-      adjustedX: this.state.adjustedX - 10
+      adjustedX: this.state.adjustedX - 4
     })
   }
 

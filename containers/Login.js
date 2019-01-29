@@ -7,10 +7,11 @@ import {
     StyleSheet,
     NativeModules,
     Image,
-    asset,
-    Animated
+    Animated,
+    asset
 } from 'react-360';
 
+const {AudioModule} = NativeModules;
 import { Easing } from 'react-native'
 import firebase from '../config'
 
@@ -59,6 +60,7 @@ export default class Login extends React.Component {
         });
     }
     onClick = () => {
+        this.playMusic()
         this.setState({showKeyboard: true}, () => {
             NativeModules.Keyboard.startInput({
                 placeholder: this.state.userId || 'Enter your name',
@@ -77,6 +79,13 @@ export default class Login extends React.Component {
                 })
             });
         })
+    }
+
+    playMusic = () =>{
+        AudioModule.playEnvironmental({
+            source: asset('starWars.mp3'),
+            volume: 0.8, // play at 3/10 original volume
+          });
     }
 
     render() {
