@@ -274,13 +274,13 @@ export default class Game extends React.Component {
         <Text
           style={{
             transform: [
-              { translate: [3, this.state.yIndex, -3] },
-              { rotateY: -90 }
+              { translate: [4, 4, -4] },
+              { rotateY: -20 }
             ],
             fontSize: 0.4
           }}
         >
-          SCOREBOARD : {this.state.score}
+          SCORE : {this.state.score}
         </Text>
 
         {/* APARTMENT MODELS  */}

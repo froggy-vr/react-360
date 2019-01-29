@@ -14,8 +14,12 @@ let database = firebase.database()
 export default class froggy_360 extends React.Component {
   state = {
     userId: '',
+<<<<<<< HEAD
     login: false,
     gameRef: null
+=======
+    login: false
+>>>>>>> changed score placement and readjust crawl for said changes
   };
 
   setUser = snapshot => {

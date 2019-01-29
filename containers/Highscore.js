@@ -59,8 +59,6 @@ export default class Highscore extends PureComponent {
 const styles = StyleSheet.create({
     scoreBoard: {
         padding: 5,
-        backgroundColor: 'grey',
-        opacity: 0.8,
         borderColor: '#639dda',
         borderWidth: 2,
         borderRadius: 10,
