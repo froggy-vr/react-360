@@ -13,13 +13,7 @@ import ScoreBoardTile from './components/ScoreBoardTile'
 export default class Highscore extends PureComponent {
 
     state = { 
-        highscores: [{
-            gameId: "Bob",
-            highScore: 2
-        },{
-            gameId: "Goop",
-            highScore: 5
-        }]
+        highscores: []
     }
 
     componentDidMount = () => {
@@ -65,7 +59,6 @@ const styles = StyleSheet.create({
         transform: [{translateX:2}]
     },
     scoreBoardTitle: {
-        fontSize: 30, 
         color: 'white',
         fontWeight: 'bold',
     }
