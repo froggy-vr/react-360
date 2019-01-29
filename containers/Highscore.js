@@ -3,18 +3,21 @@ import {
     AppRegistry,
     Text,
     View,
+    StyleSheet
 } from 'react-360';
 
 import axios from '../helpers/axios'
+import sorting from '../helpers/sort'
+import ScoreBoardTile from './components/ScoreBoardTile'
 
 export default class Highscore extends PureComponent {
 
     state = { 
         highscores: [{
-            gameId: "",
+            gameId: "Bob",
             highScore: 2
         },{
-            gameId: "",
+            gameId: "Goop",
             highScore: 5
         }]
     }
@@ -26,9 +29,7 @@ export default class Highscore extends PureComponent {
     getScores() {
         axios.get('/users/')
         .then( res => {
-            let sortedScores = res.data.users.sort((a, b) => {
-                return a.highScore - b.highScore
-            })
+            let sortedScores = res.data.users.sort(sorting).slice(0,5)
             console.log(sortedScores, 'ini sortedscores')
             this.setState({highscores: sortedScores})
         })
@@ -39,18 +40,37 @@ export default class Highscore extends PureComponent {
 
     render() {
         return (
-            <View>
-                <Text style={{fontSize: 30, color: 'yellow'}}> 
+            <View style={styles.scoreBoard}>
+                <Text style={styles.scoreBoardTitle}> 
                     Scoreboard:
                 </Text>
                 { this.state.highscores.map( (person, index) => (
-                    <Text style={{fontSize: 30, color: 'yellow'}}> 
-                        {`${index + 1}. ${person.gameId} - ${person.highScore}`}
-                    </Text>
+                    <ScoreBoardTile 
+                        index={index}
+                        person={person}
+                        key={index}
+                    />
                 ))}
             </View>
         );
     }
 };
+
+const styles = StyleSheet.create({
+    scoreBoard: {
+        padding: 5,
+        backgroundColor: 'grey',
+        opacity: 0.8,
+        borderColor: '#639dda',
+        borderWidth: 2,
+        borderRadius: 10,
+        transform: [{translateX:2}]
+    },
+    scoreBoardTitle: {
+        fontSize: 30, 
+        color: 'white',
+        fontWeight: 'bold',
+    }
+});
 
 AppRegistry.registerComponent('Highscore', () => Highscore);
