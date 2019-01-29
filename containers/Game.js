@@ -45,12 +45,12 @@ export default class Game extends React.Component {
     this.firebaseSubscribe();
     this.getHighScore();
     this.getScoreBoard();
-    window.addEventListener('beforeunload', this.clearUser())
+    window.addEventListener('beforeunload', this.clearUser)
   }
 
   componentWillUnmount() {
-    this.clearUser()
-    window.removeEventListener('beforeunload', this.clearUser())
+    // this.clearUser()
+    window.removeEventListener('beforeunload',this.clearUser)
   }
 
   getScoreBoard = () =>{
@@ -60,6 +60,7 @@ export default class Game extends React.Component {
   }
 
   clearUser = () => {
+    console.log("bersihin user")
     database.ref(`/${this.props.userId}/user`).set(false)
   }
 
