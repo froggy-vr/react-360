@@ -26,7 +26,6 @@ export default class Game extends React.Component {
     this.state = {
       slideValue: new Animated.Value(0),
       slideValue2: new Animated.Value(0),
-      text: 'Click Me',
       depth: new Animated.Value(0),
       currentPos: 0,
       carsInitialIndex: [20, 10],
@@ -276,12 +275,6 @@ export default class Game extends React.Component {
 
     return (
       <View >
-
-        <View style={{ transform: [{ translateZ: -3 }] }}>
-          <VrButton onClick={this.getCloser}>
-            <Text style={{ color: "red" }}>{this.props.userId}</Text>
-          </VrButton>
-        </View>
 
         <Text
           style={{
