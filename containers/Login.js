@@ -70,7 +70,7 @@ export default class Login extends React.Component {
                     userId: input,
                     showKeyboard: false
                 }, () => {
-                    this.props.startGame(this.state.userId)
+                    this.props.listenUser(this.state.userId)
                 })
             });
         })
