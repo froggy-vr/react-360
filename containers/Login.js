@@ -49,7 +49,7 @@ export default class Login extends React.Component {
         Animated.timing(
             this.state.crawlLocation,
             {
-                toValue: 20,
+                toValue: -10,
                 duration: 60000,
                 easing: Easing.linear
             }
@@ -103,7 +103,7 @@ export default class Login extends React.Component {
                             transform: [{ translateY: -0.06 }]
                         }}
                     />
-                    <AnimatedText style={{ transform: [{ translateY: this.state.titleLocation }] }}>
+                    <AnimatedText style={{ transform: [{ translateY: this.state.titleLocation }, {translateX: -0.02}] }}>
                         GGY
                     </AnimatedText>
                 </View>
@@ -137,10 +137,9 @@ export default class Login extends React.Component {
                 <Animated.Text style={{
                     color: 'gold',
                     transform: [
-                        { translate: [-1.5, -2, -1] },
-                        { translateZ: 1 },
-                        { translateY: this.state.crawlLocation },
-                        { rotateY: '35deg'}
+                        { translate: [0, 1, 2] },
+                        { translateZ: this.state.crawlLocation },
+                        { rotateX: '-90deg'}
                     ],
                     zIndex: -100,
                     display: this.state.display,
@@ -148,13 +147,13 @@ export default class Login extends React.Component {
                 }} >
                     In a Galaxy Far Far Away ...{"\n"}
                     There lives a young Frog{"\n"}
-                    who has journey far and wide{"\n"}
+                    who has journeyed far and wide{"\n"}
                     in search for his destiny.{"\n"}
                     {"\n"}
                     After much hardship and{"\n"}
                     years away from home,{"\n"}
                     the young Frog is ready{"\n"}
-                    to go back.{"\n"}
+                    to return whence he came.{"\n"}
                     {"\n"}
                     But one Challenge remained{"\n"}
                     before the Young Frog{"\n"}
