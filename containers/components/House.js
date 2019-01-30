@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-    AppRegistry,
     asset,
     Model,
     Animated,
@@ -8,7 +7,7 @@ import {
 
 export default class House extends React.PureComponent {
     render() {
-        let num = Math.floor(Math.random() * 3)
+        let num = this.props.randColourIndex
         var AnimatedModel = Animated.createAnimatedComponent(Model);
         return (
             <AnimatedModel

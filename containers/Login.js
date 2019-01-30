@@ -10,15 +10,14 @@ import {
     Animated,
     asset
 } from 'react-360';
-
-const {AudioModule} = NativeModules;
 import { Easing } from 'react-native'
-import firebase from '../config'
 
-//react-360 keyboard https://github.com/danielbuechele/react-360-keyboard
+import firebase from '../config'
 import { registerKeyboard } from 'react-360-keyboard';
+
 AppRegistry.registerComponent(...registerKeyboard);
 
+const {AudioModule} = NativeModules;
 const database = firebase.database()
 
 export default class Login extends React.Component {
@@ -63,7 +62,7 @@ export default class Login extends React.Component {
         this.crawlAnimation()
         this.setState({showKeyboard: true}, () => {
             NativeModules.Keyboard.startInput({
-                placeholder: this.state.userId || 'Enter your name',
+                placeholder: this.state.userId || 'Enter Game ID',
                 emoji: false
             }).then(input => {
                 this.setState({
@@ -110,7 +109,7 @@ export default class Login extends React.Component {
 
                     <View>
                         <VrButton onClick={this.onClick} style={styles.inputBox}>
-                            <Text>{this.state.userId || 'Enter your name'}</Text>
+                            <Text>{this.state.userId || 'Enter Game ID'}</Text>
                         </VrButton>
                         <View 
                             style={{
