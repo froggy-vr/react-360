@@ -12,10 +12,32 @@ function init(bundle, parent, options = {}) {
     0.2
   );
 
+  let lastDirecton = 'forward'
+
   const r360 = new ReactInstance(bundle, parent, {
     // Add custom options here
     fullScreen: true,
     nativeModules: [KeyboardModule.addModule],
+    frame: () => {
+      const c = r360.getCameraQuaternion();
+      let deg = Math.asin(2 * (c[3]*c[1] - c[2]*c[0])) * 180 / Math.PI
+      let direction =
+        Math.abs(deg) < 45
+          ? 'forward'
+          : Math.sign(deg) === -1
+            ? 'right'
+            : 'left'
+      
+      // Do whatever calculations/checks are necessary here and then fire an event to trigger the action
+      // to be performed based on the camera angles
+      if (direction !== lastDirecton) {
+        r360.runtime.context.callFunction('RCTDeviceEventEmitter', 'emit', [
+          'direction',
+          direction
+        ]);
+        lastDirecton = direction
+      }
+    },
     ...options,
   });
 
