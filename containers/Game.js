@@ -10,15 +10,20 @@ import {
   NativeModules,
 } from 'react-360';
 
-const {AudioModule} = NativeModules;
-import {Easing} from'react-native'
+
+import { Easing, DeviceEventEmitter } from'react-native'
 import axios from '../helpers/axios'
 
 import firebase from '../config'
 import House from './components/House'
 import Car from './components/Car'
 
+const {AudioModule} = NativeModules;
 const database = firebase.database()
+
+DeviceEventEmitter.addListener('direction', direction => {
+  console.log(direction)
+})
 
 export default class Game extends React.Component {
   constructor() {
