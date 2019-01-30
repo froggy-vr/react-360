@@ -4,7 +4,6 @@ import {
   Text,
   View,
   Animated,
-  VrButton,
   VrHeadModel,
   asset,
   NativeModules,
@@ -52,13 +51,17 @@ export default class Game extends React.Component {
     this.firebaseSubscribe();
     this.getHighScore();
     this.getScoreBoard();
+    AudioModule.setEnvironmentalParams({
+      volume: 0.3
+    })
     this.directionListener();
-    // window.addEventListener('beforeunload', this.clearUser)
   }
 
   componentWillUnmount() {
     this.clearUser()
-    // window.removeEventListener('beforeunload', this.clearUser)
+    AudioModule.setEnvironmentalParams({
+      muted: true
+    })
   }
 
   directionListener = () =>{
@@ -102,7 +105,7 @@ export default class Game extends React.Component {
 
   playJumpSFX = ( ) =>{
     AudioModule.playOneShot({
-      source: asset('jumping-martian.wav'),
+      source: asset('jumping-martian2.wav'),
     });
   }
 
@@ -112,46 +115,17 @@ export default class Game extends React.Component {
     });
   }
 
+  playWinSFX = () =>{
+    AudioModule.playOneShot({
+      source: asset('win.mp3'),
+    });
+  }
+
   firebaseSubscribe = () => {
     database.ref(`/${this.props.userId}/jump`).on('value', snapshot => {
       this.setState({ jumped: snapshot.val() })
-      if (snapshot.val()) {
-      //   let cameraOrientation = VrHeadModel.rotation()
-
-      //   if(this.state.adjustedX <8 && this.state.adjustedX > -8) {
-
-      //     this.playJumpSFX()   
-
-      //     if(cameraOrientation[1] > 45 && cameraOrientation[1] < 100) this.moveLeft()
-      //     else if(cameraOrientation[1] < -45 && cameraOrientation[1] > -100) this.moveRight()
-      //     else this.getCloser()
-      //   }
-      //   else if(this.state.adjustedX === 8){
-
-      //     if(cameraOrientation[1] < -45 && cameraOrientation[1] > -100) {
-      //       this.moveRight()
-      //       this.playJumpSFX()
-            
-      //     }
-      //     else if(cameraOrientation[1] > -45 && cameraOrientation[1] < 45) {
-      //       this.getCloser()
-      //       this.playJumpSFX()
-      //     }
-      //   }
-      //   else if(this.state.adjustedX === -8){
-
-      //     if(cameraOrientation[1] > 45 && cameraOrientation[1] < 100) {
-      //       this.moveLeft()
-      //       this.playJumpSFX()
-      //     }
-      //     else if(cameraOrientation[1] > -45 && cameraOrientation[1] < 45) {
-      //       this.getCloser()
-      //       this.playJumpSFX()
-      //     }
-      //   }
-        
-        
-        if(this.state.adjustedX <8 && this.state.adjustedX > -8) {
+      if (snapshot.val()) {     
+        if(this.state.adjustedX < 8 && this.state.adjustedX > -8) {
 
               this.playJumpSFX()   
     
@@ -182,7 +156,6 @@ export default class Game extends React.Component {
                 this.playJumpSFX()
               }
             }
-
       }
     })
   }
@@ -266,6 +239,7 @@ export default class Game extends React.Component {
       currentPos: newPos
     })
     if (this.state.currentPos > this.state.houseInitialIndex - 15) {
+      this.playWinSFX()   
       console.log('You won!')
       let newScore = this.state.score + 1
 
