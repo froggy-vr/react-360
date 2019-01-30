@@ -1,0 +1,10 @@
+.DS_Store
+*~
+*.log
+*.js.meta
+node_modules/
+build/
+config
+firebase.json
+database.rules.json
+.firebaserc
