@@ -4,7 +4,6 @@ import {
   Text,
   View,
   Animated,
-  VrButton,
   VrHeadModel,
   asset,
   NativeModules,
@@ -49,11 +48,17 @@ export default class Game extends React.Component {
     this.firebaseSubscribe();
     this.getHighScore();
     this.getScoreBoard();
+    AudioModule.setEnvironmentalParams({
+      volume: 0.3
+    })
     // window.addEventListener('beforeunload', this.clearUser)
   }
 
   componentWillUnmount() {
     this.clearUser()
+    AudioModule.setEnvironmentalParams({
+      muted: true
+    })
     // window.removeEventListener('beforeunload', this.clearUser)
   }
 
@@ -90,13 +95,19 @@ export default class Game extends React.Component {
 
   playJumpSFX = ( ) =>{
     AudioModule.playOneShot({
-      source: asset('jumping-martian.wav'),
+      source: asset('jumping-martian2.wav'),
     });
   }
 
   playFailSFX = () =>{
     AudioModule.playOneShot({
       source: asset('fail.wav'),
+    });
+  }
+
+  playWinSFX = () =>{
+    AudioModule.playOneShot({
+      source: asset('win.mp3'),
     });
   }
 
@@ -221,6 +232,7 @@ export default class Game extends React.Component {
       currentPos: newPos
     })
     if (this.state.currentPos > this.state.houseInitialIndex - 15) {
+      this.playWinSFX()   
       console.log('You won!')
       let newScore = this.state.score + 1
 

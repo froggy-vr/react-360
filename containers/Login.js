@@ -31,7 +31,6 @@ export default class Login extends React.Component {
     }
     componentDidMount() {
         this.titleAnimation()
-        this.crawlAnimation()
     }
     titleAnimation() {
         Animated.spring(
@@ -40,7 +39,7 @@ export default class Login extends React.Component {
                 toValue: -0.1,
                 duration: 800,
                 friction: 2,
-                tension: 1
+                tension: 1,
             }
         ).start();
     }
@@ -61,6 +60,7 @@ export default class Login extends React.Component {
     }
     onClick = () => {
         this.playMusic()
+        this.crawlAnimation()
         this.setState({showKeyboard: true}, () => {
             NativeModules.Keyboard.startInput({
                 placeholder: this.state.userId || 'Enter your name',
@@ -79,7 +79,7 @@ export default class Login extends React.Component {
     playMusic = () =>{
         AudioModule.playEnvironmental({
             source: asset('starWars.mp3'),
-            volume: 0.8, // play at 3/10 original volume
+            volume: 1,
           });
     }
 
