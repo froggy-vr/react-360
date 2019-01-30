@@ -4,7 +4,6 @@ import {
   Text,
   View,
   Animated,
-  VrHeadModel,
   asset,
   NativeModules,
 } from 'react-360';
@@ -41,7 +40,8 @@ export default class Game extends React.Component {
       score: 0,
       jumped: false,
       highScore: 0,
-      direction: ''
+      direction: '',
+      aptColour: 0
     };
   }
 
@@ -50,11 +50,14 @@ export default class Game extends React.Component {
     this.car2Animation();
     this.firebaseSubscribe();
     this.getHighScore();
-    this.getScoreBoard();
     AudioModule.setEnvironmentalParams({
       volume: 0.3
     })
     this.directionListener();
+  }
+  
+  componentWillMount() {
+    this.setState({aptColour1: Math.floor(Math.random() * 3), aptColour2: Math.floor(Math.random() * 3), aptColour3: Math.floor(Math.random() * 3)})
   }
 
   componentWillUnmount() {
@@ -72,12 +75,6 @@ export default class Game extends React.Component {
     })
   }
 
-  getScoreBoard = () =>{
-    axios.get('/users')
-    .then(({data}) => console.log(data))
-    .catch(err => console.log(err))
-  }
-
   clearUser = () => {
     database.ref(`/${this.props.userId}/connected`).off()
     database.ref(`/${this.props.userId}/jump`).off()
@@ -87,7 +84,6 @@ export default class Game extends React.Component {
   getHighScore(){
     axios.get('/users/' + this.props.userId)
     .then(({data}) => {
-      console.log(data)
       if(!data.user){
         axios.post(
           '/users/',
@@ -95,29 +91,32 @@ export default class Game extends React.Component {
             gameId: this.props.userId
           }
         )
-        .then(({data}) => console.log(data))
+        .then(({data}) => console.log(data, "New User"))
         .catch((err) => console.log(err))
       }
       this.setState({highScore: data.user.highScore})
     })
-    .catch((err) => console.log(err))
+    .catch((err) => console.log(err, "Error in getHighScore"))
   }
 
   playJumpSFX = ( ) =>{
     AudioModule.playOneShot({
       source: asset('jumping-martian2.wav'),
+      volume: 0.6
     });
   }
 
   playFailSFX = () =>{
     AudioModule.playOneShot({
       source: asset('fail.wav'),
+      volume: 0.6
     });
   }
 
   playWinSFX = () =>{
     AudioModule.playOneShot({
       source: asset('win.mp3'),
+      volume: 1
     });
   }
 
@@ -126,42 +125,52 @@ export default class Game extends React.Component {
       this.setState({ jumped: snapshot.val() })
       if (snapshot.val()) {     
         if(this.state.adjustedX < 8 && this.state.adjustedX > -8) {
-
-              this.playJumpSFX()   
-    
-              if(this.state.direction === 'left') this.moveLeft()
-              else if(this.state.direction === 'right') this.moveRight()
-              else this.getCloser()
+          if(this.state.currentPos > this.state.houseInitialIndex - 20){
+            this.playWinSFX()
+          }
+          else{
+            this.playJumpSFX()
+          }
+          // this.playJumpSFX()        
+          if(this.state.direction === 'left') this.moveLeft()
+          else if(this.state.direction === 'right') this.moveRight()
+          else this.getCloser()
+        }
+        else if(this.state.adjustedX === 8){
+          if(this.state.direction === 'right') {
+            this.moveRight()
+            this.playJumpSFX()
+          }
+          else if(this.state.direction === 'forward') {
+            if(this.state.currentPos > this.state.houseInitialIndex - 20){
+              this.playWinSFX()
             }
-            else if(this.state.adjustedX === 8){
-    
-              if(this.state.direction === 'right') {
-                this.moveRight()
-                this.playJumpSFX()
-                
-              }
-              else if(this.state.direction === 'forward') {
-                this.getCloser()
-                this.playJumpSFX()
-              }
+            else{
+              this.playJumpSFX()
             }
-            else if(this.state.adjustedX === -8){
-    
-              if(this.state.direction === 'left') {
-                this.moveLeft()
-                this.playJumpSFX()
-              }
-              else if(this.state.direction === 'forward') {
-                this.getCloser()
-                this.playJumpSFX()
-              }
+            this.getCloser()
+          }
+        }
+        else if(this.state.adjustedX === -8){
+          if(this.state.direction === 'left') {
+            this.moveLeft()
+            this.playJumpSFX()
+          }
+          else if(this.state.direction === 'forward') {
+            if(this.state.currentPos > this.state.houseInitialIndex - 20){
+              this.playWinSFX()
             }
+            else{
+              this.playJumpSFX()
+            }
+            this.getCloser()
+          }
+        }
       }
     })
   }
 
   getHit = () =>{
-
     this.playFailSFX()
 
     if(this.state.score > this.state.highScore){
@@ -169,6 +178,7 @@ export default class Game extends React.Component {
       .then(({data}) => this.setState({highScore: data.user.highScore}))
       .catch((err) => console.log(err))
     }
+
     this.setState({ depth: new Animated.Value(0), currentPos: 0, score: 0, adjustedX: 0 })
   }
 
@@ -185,7 +195,6 @@ export default class Game extends React.Component {
 
     this.state.slideValue.setValue(newPosition);
 
-    //car
     Animated.timing(
       this.state.slideValue,
       {
@@ -239,7 +248,7 @@ export default class Game extends React.Component {
       currentPos: newPos
     })
     if (this.state.currentPos > this.state.houseInitialIndex - 15) {
-      this.playWinSFX()   
+      // this.playWinSFX()   
       console.log('You won!')
       let newScore = this.state.score + 1
 
@@ -272,9 +281,8 @@ export default class Game extends React.Component {
   }
   moveLeft = () =>{
     console.log('move left')
-    let newXPositionCar1 = this.state.slideValue._value +4
-    let newXPositionCar2 = this.state.slideValue2._value +4
-
+    let newXPositionCar1 = this.state.slideValue._value + 4
+    let newXPositionCar2 = this.state.slideValue2._value + 4
 
     this.car2Animation(newXPositionCar2)
     this.car1Animation(newXPositionCar1)
@@ -285,8 +293,8 @@ export default class Game extends React.Component {
 
   moveRight = () =>{
     console.log('move right')
-    let newXPositionCar1 = this.state.slideValue._value -4
-    let newXPositionCar2 = this.state.slideValue2._value -4
+    let newXPositionCar1 = this.state.slideValue._value - 4
+    let newXPositionCar2 = this.state.slideValue2._value - 4
 
     this.car2Animation(newXPositionCar2)
     this.car1Animation(newXPositionCar1)
@@ -299,7 +307,6 @@ export default class Game extends React.Component {
 
     return (
       <View >
-
         <Text
           style={{
             transform: [
@@ -315,24 +322,28 @@ export default class Game extends React.Component {
         {/* APARTMENT MODELS  */}
 
         <House
-          xIndex={-8+this.state.adjustedX}
+          xIndex={-8 + this.state.adjustedX}
           yIndex={this.state.yIndex}
           houseInitialIndex={this.state.houseInitialIndex}
           depth={this.state.depth}
+          randColourIndex={this.state.aptColour1}
         />
 
         <House
-          xIndex={0+this.state.adjustedX}
+          xIndex={0 + this.state.adjustedX}
           yIndex={this.state.yIndex}
           houseInitialIndex={this.state.houseInitialIndex}
           depth={this.state.depth}
+          randColourIndex={this.state.aptColour2}
+
         />
 
         <House
-          xIndex={8+this.state.adjustedX}
+          xIndex={8 + this.state.adjustedX}
           yIndex={this.state.yIndex}
           houseInitialIndex={this.state.houseInitialIndex}
           depth={this.state.depth}
+          randColourIndex={this.state.aptColour3}
         />
 
         {/* CAR MODELS */}
