@@ -13,7 +13,6 @@ export default class Car extends React.PureComponent {
                 source={{
                     obj: asset('Transport Shuttle_obj.obj'),
                     mtl: asset('Transport Shuttle_obj.mtl'),
-
                 }}
                 style={{
                     transform: [
