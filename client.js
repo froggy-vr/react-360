@@ -12,7 +12,7 @@ function init(bundle, parent, options = {}) {
     0.2
   );
 
-  let lastDirecton = 'forward'
+  let lastDirecton = ''
 
   const r360 = new ReactInstance(bundle, parent, {
     // Add custom options here
