@@ -20,9 +20,11 @@ import Car from './components/Car'
 const {AudioModule} = NativeModules;
 const database = firebase.database()
 
+
 DeviceEventEmitter.addListener('direction', direction => {
-  console.log(direction)
+  direction = direction
 })
+
 
 export default class Game extends React.Component {
   constructor() {
@@ -38,7 +40,8 @@ export default class Game extends React.Component {
       adjustedX: 0,
       score: 0,
       jumped: false,
-      highScore: 0
+      highScore: 0,
+      direction: ''
     };
   }
 
@@ -51,7 +54,7 @@ export default class Game extends React.Component {
     AudioModule.setEnvironmentalParams({
       volume: 0.3
     })
-    // window.addEventListener('beforeunload', this.clearUser)
+    this.directionListener();
   }
 
   componentWillUnmount() {
@@ -59,7 +62,14 @@ export default class Game extends React.Component {
     AudioModule.setEnvironmentalParams({
       muted: true
     })
-    // window.removeEventListener('beforeunload', this.clearUser)
+  }
+
+  directionListener = () =>{
+    DeviceEventEmitter.addListener('direction', direction => {
+      this.setState({
+        direction
+      })
+    })
   }
 
   getScoreBoard = () =>{
@@ -114,41 +124,38 @@ export default class Game extends React.Component {
   firebaseSubscribe = () => {
     database.ref(`/${this.props.userId}/jump`).on('value', snapshot => {
       this.setState({ jumped: snapshot.val() })
-      if (snapshot.val()) {
-        let cameraOrientation = VrHeadModel.rotation()
+      if (snapshot.val()) {     
+        if(this.state.adjustedX < 8 && this.state.adjustedX > -8) {
 
-        if(this.state.adjustedX <8 && this.state.adjustedX > -8) {
-
-          this.playJumpSFX()   
-
-          if(cameraOrientation[1] > 45 && cameraOrientation[1] < 100) this.moveLeft()
-          else if(cameraOrientation[1] < -45 && cameraOrientation[1] > -100) this.moveRight()
-          else this.getCloser()
-        }
-        else if(this.state.adjustedX === 8){
-
-          if(cameraOrientation[1] < -45 && cameraOrientation[1] > -100) {
-            this.moveRight()
-            this.playJumpSFX()
-            
-          }
-          else if(cameraOrientation[1] > -45 && cameraOrientation[1] < 45) {
-            this.getCloser()
-            this.playJumpSFX()
-          }
-        }
-        else if(this.state.adjustedX === -8){
-
-          if(cameraOrientation[1] > 45 && cameraOrientation[1] < 100) {
-            this.moveLeft()
-            this.playJumpSFX()
-          }
-          else if(cameraOrientation[1] > -45 && cameraOrientation[1] < 45) {
-            this.getCloser()
-            this.playJumpSFX()
-          }
-        }
-        
+              this.playJumpSFX()   
+    
+              if(this.state.direction === 'left') this.moveLeft()
+              else if(this.state.direction === 'right') this.moveRight()
+              else this.getCloser()
+            }
+            else if(this.state.adjustedX === 8){
+    
+              if(this.state.direction === 'right') {
+                this.moveRight()
+                this.playJumpSFX()
+                
+              }
+              else if(this.state.direction === 'forward') {
+                this.getCloser()
+                this.playJumpSFX()
+              }
+            }
+            else if(this.state.adjustedX === -8){
+    
+              if(this.state.direction === 'left') {
+                this.moveLeft()
+                this.playJumpSFX()
+              }
+              else if(this.state.direction === 'forward') {
+                this.getCloser()
+                this.playJumpSFX()
+              }
+            }
       }
     })
   }
