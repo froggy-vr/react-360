@@ -24,7 +24,6 @@ export default class Highscore extends PureComponent {
         axios.get('/users/')
         .then( res => {
             let sortedScores = res.data.users.sort(sorting).slice(0,5)
-            console.log(sortedScores, 'ini sortedscores')
             this.setState({highscores: sortedScores})
         })
         .catch( err => {

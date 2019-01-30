@@ -7,11 +7,9 @@ import {
   asset,
   NativeModules,
 } from 'react-360';
-
-
 import { Easing, DeviceEventEmitter } from'react-native'
-import axios from '../helpers/axios'
 
+import axios from '../helpers/axios'
 import firebase from '../config'
 import House from './components/House'
 import Car from './components/Car'
@@ -19,11 +17,9 @@ import Car from './components/Car'
 const {AudioModule} = NativeModules;
 const database = firebase.database()
 
-
 DeviceEventEmitter.addListener('direction', direction => {
   direction = direction
 })
-
 
 export default class Game extends React.Component {
   constructor() {
@@ -131,7 +127,6 @@ export default class Game extends React.Component {
           else{
             this.playJumpSFX()
           }
-          // this.playJumpSFX()        
           if(this.state.direction === 'left') this.moveLeft()
           else if(this.state.direction === 'right') this.moveRight()
           else this.getCloser()
@@ -248,7 +243,6 @@ export default class Game extends React.Component {
       currentPos: newPos
     })
     if (this.state.currentPos > this.state.houseInitialIndex - 15) {
-      // this.playWinSFX()   
       console.log('You won!')
       let newScore = this.state.score + 1
 
